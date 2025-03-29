@@ -1,16 +1,21 @@
+import * as dotenv from 'dotenv-flow';
+dotenv.config({ silent: true });
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
-
+import Logger from './logger';
+import { ConsoleTransport } from './logger/transports';
+import _config from './config';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const cfg = _config(process.env);
+  const logger = Logger.initWinston({
+    transports: [ConsoleTransport(cfg.app.appName)],
+  });
 
-  const configService = app.get(ConfigService);
+  const app = await NestFactory.create(AppModule, {
+    logger,
+  });
 
-  const port = configService.get<number>('app.port');
-
-  if (!port) {
+  if (!cfg.app.port) {
     throw new Error('❌ PORT is not defined in environment variables.');
   }
 
@@ -18,8 +23,8 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  await app.listen(port);
-  Logger.log(`🚀 Application is running on: ${await app.getUrl()}`);
+  await app.listen(cfg.app.port);
+  logger.log(`🚀 Application is running on: ${await app.getUrl()}`);
 }
 
 bootstrap();
