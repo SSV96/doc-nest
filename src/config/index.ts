@@ -4,7 +4,7 @@ const config = (config: Record<string, unknown>) => {
   const ENVS = ConfigValidationSchema.parse(config);
   return {
     app: {
-      appName: 'nest-js-backend',
+      appName: 'doc-nest',
       env: ENVS.NODE_ENV,
       port: ENVS.PORT,
     },
