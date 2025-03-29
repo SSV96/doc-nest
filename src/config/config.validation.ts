@@ -12,4 +12,11 @@ export const ConfigValidationSchema = z.object({
     .refine((val) => !isNaN(val) && val > 0, {
       message: 'PORT must be a valid positive number',
     }),
+
+  //postgres credentials
+  PG_HOST: z.string(),
+  PG_DATABASE: z.string(),
+  PG_USER: z.string(),
+  PG_PASSWORD: z.string(),
+  PG_PORT: z.coerce.number().positive(),
 });

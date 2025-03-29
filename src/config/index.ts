@@ -8,6 +8,15 @@ const config = (config: Record<string, unknown>) => {
       env: ENVS.NODE_ENV,
       port: ENVS.PORT,
     },
+    db: {
+      postgres: {
+        host: ENVS.PG_HOST,
+        dbName: ENVS.PG_DATABASE,
+        username: ENVS.PG_USER,
+        password: ENVS.PG_PASSWORD,
+        port: ENVS.PG_PORT,
+      },
+    },
   } as const;
 };
 

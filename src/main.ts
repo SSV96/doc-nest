@@ -7,6 +7,7 @@ import { ConsoleTransport } from './logger/transports';
 import _config from './config';
 import { AllExceptionsFilter } from './common/filters/allexception.filter';
 import { ZodValidationPipe } from 'nestjs-zod';
+
 async function bootstrap() {
   const cfg = _config(process.env);
   const logger = Logger.initWinston({
