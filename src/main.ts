@@ -1,10 +1,12 @@
 import * as dotenv from 'dotenv-flow';
 dotenv.config({ silent: true });
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import Logger from './logger';
 import { ConsoleTransport } from './logger/transports';
 import _config from './config';
+import { AllExceptionsFilter } from './common/filters/allexception.filter';
+import { ZodValidationPipe } from 'nestjs-zod';
 async function bootstrap() {
   const cfg = _config(process.env);
   const logger = Logger.initWinston({
@@ -20,7 +22,10 @@ async function bootstrap() {
   }
 
   app.enableCors();
-
+  app.useGlobalPipes(new ZodValidationPipe());
+  app.useGlobalFilters(
+    new AllExceptionsFilter(app.get(HttpAdapterHost).httpAdapter),
+  );
   app.setGlobalPrefix('api');
 
   await app.listen(cfg.app.port);
