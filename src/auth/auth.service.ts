@@ -4,7 +4,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
-import { RolesEnum } from '../common/enum/roles.enum';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,7 +19,7 @@ export class AuthService {
     const user = await this.userService.upsertUser({
       email,
       password: hashedPassword,
-      role: role || RolesEnum.VIEWER,
+      role,
     });
     const payload = { email: user.email, sub: user.id, role: user.role };
     return { accessToken: await this.jwtService.signAsync(payload) };
