@@ -22,7 +22,6 @@ async function bootstrap() {
     throw new Error('❌ PORT is not defined in environment variables.');
   }
 
-  app.enableCors();
   app.useGlobalPipes(new ZodValidationPipe());
   app.useGlobalFilters(
     new AllExceptionsFilter(app.get(HttpAdapterHost).httpAdapter),

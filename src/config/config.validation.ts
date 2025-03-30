@@ -19,4 +19,8 @@ export const ConfigValidationSchema = z.object({
   PG_USER: z.string(),
   PG_PASSWORD: z.string(),
   PG_PORT: z.coerce.number().positive(),
+
+  // Jwt
+  JWT_SECRET: z.string(),
+  JWT_EXPIRES_IN: z.string(),
 });

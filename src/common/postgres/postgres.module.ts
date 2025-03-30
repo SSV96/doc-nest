@@ -19,7 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           password,
           database: dbName,
           autoLoadEntities: true,
-          synchronize: false,
+          synchronize: configService.get('app.env') === 'local' ? true : false,
         };
       },
     }),
