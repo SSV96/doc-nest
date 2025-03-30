@@ -17,6 +17,10 @@ const config = (config: Record<string, unknown>) => {
         port: ENVS.PG_PORT,
       },
     },
+    jwt: {
+      secret: ENVS.JWT_SECRET,
+      expiresIn: ENVS.JWT_EXPIRES_IN,
+    },
   } as const;
 };
 

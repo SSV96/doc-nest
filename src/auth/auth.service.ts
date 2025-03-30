@@ -15,7 +15,7 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<{ accessToken: string }> {
     const { email, password, role } = registerDto;
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log({ hashedPassword });
+
     const user = await this.userService.upsertUser({
       email,
       password: hashedPassword,

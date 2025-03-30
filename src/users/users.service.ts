@@ -11,11 +11,11 @@ export class UsersService {
   async upsertUser(registerDto: RegisterDto): Promise<User> {
     const { email } = registerDto;
     const user = await this.usersRepository.findOne({ where: { email } });
-    console.log({ user });
     if (user) {
       return user;
     }
-    return this.usersRepository.save(user);
+    const newUser = await this.usersRepository.save(registerDto);
+    return newUser;
   }
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
