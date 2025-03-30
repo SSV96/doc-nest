@@ -8,7 +8,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
@@ -31,10 +30,13 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch(':id/role')
   @Roles(RolesEnum.ADMIN)
-  update(@Param('id') id: string, @Body() updateDto: Partial<User>) {
-    return this.usersService.update(id, updateDto);
+  updateUserRole(
+    @Param('id') id: string,
+    @Body() updateDto: { role: RolesEnum },
+  ) {
+    return this.usersService.updateUserRole(id, updateDto.role);
   }
 
   @Delete(':id')
