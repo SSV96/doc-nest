@@ -6,8 +6,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Documents } from './entities/documents.entity';
-import { AwsService } from 'src/common/aws/aws.service';
-import { UsersService } from 'src/users/users.service';
+import { AwsService } from '../common/aws/aws.service';
+import { UsersService } from '../users/users.service';
 import { DocumentStatusEnum } from './enum/document.status';
 import { DocumentCreateDto } from './dto/document.create';
 import { lastValueFrom } from 'rxjs';
@@ -94,16 +94,16 @@ export class DocumentsService {
     });
     const user = await this.userService.findOne(userId);
 
-    if (user) {
+    if (!user) {
       throw new NotFoundException('User not found');
-    }
-
-    if (!(user.id === document.uploadedBy)) {
-      throw new BadRequestException('Document is not created By User');
     }
 
     if (!document) {
       throw new NotFoundException('Document not found');
+    }
+
+    if (!(user.id === document.uploadedBy)) {
+      throw new BadRequestException('Document is not created By User');
     }
 
     try {

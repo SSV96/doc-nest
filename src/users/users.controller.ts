@@ -10,8 +10,8 @@ import {
 import { UsersService } from './users.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
-import { RolesEnum } from 'src/common/enum/roles.enum';
+import { JwtAuthGuard } from '../auth/guard/jwt.guard';
+import { RolesEnum } from '../common/enum/roles.enum';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)

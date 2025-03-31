@@ -12,12 +12,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
+import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { DocumentsService } from './documents.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { AuthenticatedRequest } from 'src/common/interface';
-import { RolesEnum } from 'src/common/enum/roles.enum';
+import { AuthenticatedRequest } from '../common/interface';
+import { RolesEnum } from '../common/enum/roles.enum';
 import { DocumentCreateDto } from './dto/document.create';
 
 @Controller('documents')
