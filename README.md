@@ -289,7 +289,6 @@ Use Authorization: Bearer <token> header for authenticated requests.
 
 - **API Pagination**: APIs are designed to support **pagination**, reducing load on the server and enabling better handling of large datasets.
 - **Connection Pooling**: Uses **connection pooling** with PostgreSQL to efficiently manage database connections.
-- **Async Ingestion**: Implements **async ingestion** (via RabbitMQ) for high-volume document processing without blocking other operations.
 
 ### Running Tests
 
