@@ -106,10 +106,6 @@ export class DocumentsService {
       throw new NotFoundException('Document not found');
     }
 
-    if (document.status === 'ingested') {
-      throw new BadRequestException('Document already ingested');
-    }
-
     try {
       await lastValueFrom(
         this.httpService.post(this.ingestionServiceUrl, {
@@ -118,7 +114,6 @@ export class DocumentsService {
         }),
       );
 
-      document.status = 'ingested';
       await this.documentsRepository.save(document);
     } catch (error) {
       throw new BadRequestException(
