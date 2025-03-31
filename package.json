@@ -24,7 +24,8 @@
     "migration:generate": "typeorm migration:generate -d src/data-source.ts -n",
     "migration:run": "typeorm migration:run -d src/data-source.ts",
     "migration:revert": "typeorm migration:revert -d src/data-source.ts",
-    "migration:show": "typeorm migration:show -d src/data-source.ts"
+    "migration:show": "typeorm migration:show -d src/data-source.ts",
+    "seed": "cross-env NODE_ENV=local ts-node ./src/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.777.0",
@@ -51,6 +52,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.6.0",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^11.0.12",
