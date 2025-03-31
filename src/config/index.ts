@@ -21,6 +21,18 @@ const config = (config: Record<string, unknown>) => {
       secret: ENVS.JWT_SECRET,
       expiresIn: ENVS.JWT_EXPIRES_IN,
     },
+    aws: {
+      accessKeyId: ENVS.AWS_ACCESS_KEY_ID,
+      secretAccessKey: ENVS.AWS_SECRET_ACCESS_KEY,
+
+      s3: {
+        region: ENVS.AWS_REGION,
+        bucketName: ENVS.AWS_BUCKET_NAME,
+      },
+    },
+    microservice: {
+      ingestionServiceUrl: ENVS.INGESTION_SERVICE_URL,
+    },
   } as const;
 };
 

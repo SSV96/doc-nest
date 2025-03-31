@@ -21,7 +21,7 @@ export class AuthService {
       password: hashedPassword,
       role,
     });
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload = { email: user.email, userId: user.id, role: user.role };
     return { accessToken: await this.jwtService.signAsync(payload) };
   }
 
@@ -31,7 +31,7 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const payload = { email: user.email, sub: user.id, role: user.role };
+    const payload = { email: user.email, userId: user.id, role: user.role };
     return { accessToken: this.jwtService.sign(payload) };
   }
 }

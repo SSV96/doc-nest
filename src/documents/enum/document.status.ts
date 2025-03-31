@@ -1,0 +1,7 @@
+export enum DocumentStatusEnum {
+  PENDING = 'PENDING',
+  UPLOADED = 'UPLOADED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPIRED',
+}
