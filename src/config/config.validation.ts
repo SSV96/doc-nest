@@ -29,4 +29,7 @@ export const ConfigValidationSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string(),
   AWS_REGION: z.string(),
   AWS_BUCKET_NAME: z.string(),
+
+  //Ingestion
+  INGESTION_SERVICE_URL: z.string(),
 });

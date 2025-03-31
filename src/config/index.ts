@@ -30,6 +30,9 @@ const config = (config: Record<string, unknown>) => {
         bucketName: ENVS.AWS_BUCKET_NAME,
       },
     },
+    microservice: {
+      ingestionServiceUrl: ENVS.INGESTION_SERVICE_URL,
+    },
   } as const;
 };
 

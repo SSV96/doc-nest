@@ -75,4 +75,9 @@ export class DocumentsController {
   remove(@Param('id') id: string) {
     return this.documentsService.remove(id);
   }
+
+  @Post(':id/ingest')
+  triggerIngestion(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.documentsService.triggerIngestion(id, req.me.userId);
+  }
 }
