@@ -6,7 +6,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Inject } from '@nestjs/common';
 
-import { ConfigVariablesType } from 'src/config';
+import { ConfigVariablesType } from '../../config';
 import { v4 as uuid } from 'uuid';
 export class AwsService {
   constructor(
