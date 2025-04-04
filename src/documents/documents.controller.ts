@@ -8,7 +8,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Body,
-  Req,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -16,10 +15,10 @@ import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { DocumentsService } from './documents.service';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { AuthenticatedRequest } from '../common/interface';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { DocumentCreateDto } from './dto/document.create';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('Documents')
 @ApiBearerAuth()
@@ -43,10 +42,10 @@ export class DocumentsController {
   async upload(
     @UploadedFile() file: Express.Multer.File,
     @Body('title') title: string,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser('userId') userId: string,
   ) {
     if (!file) throw new BadRequestException('File is required');
-    return await this.documentsService.upload(file, title, req.me.userId);
+    return await this.documentsService.upload(file, title, userId);
   }
 
   @Post('create')
@@ -54,9 +53,9 @@ export class DocumentsController {
   @ApiBody({ type: DocumentCreateDto })
   async create(
     @Body('documentCreateDto') documentCreate: DocumentCreateDto,
-    @Req() req: AuthenticatedRequest,
+    @CurrentUser('userId') userId: string,
   ) {
-    return await this.documentsService.create(documentCreate, req.me.userId);
+    return await this.documentsService.create(documentCreate, userId);
   }
 
   @Post('get-presigned-url')
@@ -87,8 +86,8 @@ export class DocumentsController {
 
   @Get('find_my_documents')
   @ApiOperation({ summary: 'Find all documents for the authenticated user' })
-  findMyDocuments(@Req() req: AuthenticatedRequest) {
-    return this.documentsService.findAll(req.me.userId);
+  findMyDocuments(@CurrentUser('userId') userId: string) {
+    return this.documentsService.findAll(userId);
   }
 
   @Get('find/:id')
@@ -107,7 +106,10 @@ export class DocumentsController {
 
   @Post(':id/ingest')
   @ApiOperation({ summary: 'Trigger document ingestion process' })
-  triggerIngestion(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
-    return this.documentsService.triggerIngestion(id, req.me.userId);
+  triggerIngestion(
+    @Param('id') id: string,
+    @CurrentUser('userId') userId: string,
+  ) {
+    return this.documentsService.triggerIngestion(id, userId);
   }
 }
