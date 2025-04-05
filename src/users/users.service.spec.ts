@@ -5,9 +5,32 @@ import { User } from './entities/user.entity';
 import { NotFoundException } from '@nestjs/common';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { RegisterDto } from '../auth/dto/register.dto';
-
+import { v4 as uuidV4 } from 'uuid';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationMetaDto } from '../common/dto/paginated-resonse.dto';
 describe('UsersService', () => {
   let service: UsersService;
+
+  const mockUser: User = {
+    id: uuidV4(),
+    email: 'user@gmail.com',
+    password: '',
+    role: RolesEnum.VIEWER,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const mockUsers: User[] = [
+    {
+      id: uuidV4(),
+      email: 'user1@gmail.com',
+      password: '',
+      role: RolesEnum.EDITOR,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    { ...mockUser },
+  ];
 
   const mockUsersRepository = {
     findOne: jest.fn(),
@@ -15,6 +38,13 @@ describe('UsersService', () => {
     find: jest.fn(),
     findOneBy: jest.fn(),
     delete: jest.fn(),
+    createQueryBuilder: jest.fn(() => ({
+      select: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([mockUsers, 2]),
+    })),
   };
 
   beforeEach(async () => {
@@ -38,22 +68,32 @@ describe('UsersService', () => {
   describe('upsertUser', () => {
     it('should return existing user if found', async () => {
       const registerDto: RegisterDto = {
-        email: 'test@example.com',
+        email: 'user@gmail.com',
         password: 'password',
       };
-      const user = { id: '1', email: 'test@example.com' };
-      mockUsersRepository.findOne.mockResolvedValue(user);
+
+      mockUsersRepository.findOne.mockResolvedValue(mockUser);
 
       const result = await service.upsertUser(registerDto);
-      expect(result).toEqual(user);
+      expect(result).toEqual(mockUser);
     });
 
     it('should create a new user if not found', async () => {
       const registerDto: RegisterDto = {
-        email: 'test@example.com',
+        email: 'user@gmail.com',
         password: 'password',
+        role: RolesEnum.ADMIN,
       };
-      const newUser = { id: '1', email: 'test@example.com' };
+
+      const newUser: User = {
+        id: uuidV4(),
+        email: 'user2@gmail.com',
+        password: 'password',
+        role: RolesEnum.ADMIN,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
       mockUsersRepository.findOne.mockResolvedValue(null);
       mockUsersRepository.save.mockResolvedValue(newUser);
 
@@ -63,12 +103,27 @@ describe('UsersService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all users', async () => {
-      const users = [{ id: '1', email: 'test@example.com' }];
-      mockUsersRepository.find.mockResolvedValue(users);
+    it('should return paginated users with metadata', async () => {
+      const paginationDto: PaginationDto = {
+        page: 1,
+        limit: 10,
+        orderBy: 'DESC',
+        sortBy: 'NEW',
+      };
 
-      const result = await service.findAll();
-      expect(result).toEqual(users);
+      const result = await service.findAll(paginationDto);
+
+      expect(mockUsersRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'users',
+      );
+      expect(result.items).toHaveLength(2);
+      expect(result.meta).toEqual(
+        new PaginationMetaDto({
+          page: 1,
+          limit: 10,
+          totalItems: 2,
+        }),
+      );
     });
   });
 

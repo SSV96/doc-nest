@@ -4,11 +4,11 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { RolesEnum } from '../common/enum/roles.enum';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 import {
   PaginatedResponseDto,
   PaginationMetaDto,
-} from 'src/common/dto/paginated-resonse.dto';
+} from '../common/dto/paginated-resonse.dto';
 @Injectable()
 export class UsersService {
   constructor(
