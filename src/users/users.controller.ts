@@ -14,7 +14,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()

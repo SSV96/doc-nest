@@ -16,8 +16,8 @@ import { ConfigService } from '@nestjs/config';
 import {
   PaginatedResponseDto,
   PaginationMetaDto,
-} from 'src/common/dto/paginated-resonse.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+} from '../common/dto/paginated-resonse.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 @Injectable()
 export class DocumentsService {
   ingestionServiceUrl: string;

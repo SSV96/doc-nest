@@ -41,6 +41,7 @@ export class DocumentCreateDto {
     description: 'Information about the Document',
   })
   metaInfo: FileMetaInfoDto;
+
   @ApiProperty({
     example: 'https://example.com/document.pdf',
     description: 'URL of the document',

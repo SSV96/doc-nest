@@ -26,10 +26,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { PaginatedResponseDto } from 'src/common/dto/paginated-resonse.dto';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { PaginatedResponseDto } from '../common/dto/paginated-resonse.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('Documents')
 @ApiBearerAuth()
