@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { DocumentStatusEnum } from '../enum/document.status';
+import { IFileMetaInfo } from '../interface';
 @Entity()
 export class Documents {
   @PrimaryGeneratedColumn('uuid')
@@ -22,6 +23,9 @@ export class Documents {
 
   @Column({ enum: DocumentStatusEnum })
   status: string;
+
+  @Column({ type: 'jsonb', nullable: true })
+  metaInfo: IFileMetaInfo;
 
   @CreateDateColumn({
     type: 'timestamp',

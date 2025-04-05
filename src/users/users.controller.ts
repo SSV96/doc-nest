@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -13,6 +14,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -24,8 +26,8 @@ export class UsersController {
   @Get()
   @Roles(RolesEnum.ADMIN)
   @ApiOperation({ summary: 'Retrieve all users (Admin only)' })
-  findAll() {
-    return this.usersService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.usersService.findAll(paginationDto);
   }
 
   @Get(':id')

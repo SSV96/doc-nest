@@ -14,12 +14,16 @@ import { RolesEnum } from '../common/enum/roles.enum';
 import { of, throwError } from 'rxjs';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DocumentCreateDto } from './dto/document.create';
+import { IFileMetaInfo } from './interface';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { PaginationMetaDto } from '../common/dto/paginated-resonse.dto';
 describe('DocumentsService', () => {
   let service: DocumentsService;
   let documentsRepository: Repository<Documents>;
   let awsService: AwsService;
   let usersService: UsersService;
   let httpService: HttpService;
+
   // mock data
   const mockUser: User = {
     id: uuidv4(),
@@ -29,16 +33,35 @@ describe('DocumentsService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   };
+
+  const fileMetaInfo: IFileMetaInfo = {
+    originalName: 'employees-data.pdf',
+    mimeType: 'application/pdf',
+    size: 10,
+    encoding: '7bit',
+    fieldName: 'file',
+  };
+
   const mockDocument = {
     id: uuidv4(),
     uploadedBy: mockUser.id,
     title: 'Test Document',
     url: 'https://aws.s3/test',
+    metaInfo: fileMetaInfo,
     createdAt: new Date(),
     updatedAt: new Date(),
     status: DocumentStatusEnum.UPLOADED,
   };
   const mockDocuments: Documents[] = [mockDocument];
+
+  const queryBuilderMock = {
+    select: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn().mockResolvedValue([mockDocuments, 1]),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,6 +74,7 @@ describe('DocumentsService', () => {
             findOne: jest.fn(),
             find: jest.fn().mockResolvedValue(mockDocuments),
             remove: jest.fn().mockResolvedValue(null),
+            createQueryBuilder: jest.fn(() => queryBuilderMock),
           },
         },
         {
@@ -63,6 +87,9 @@ describe('DocumentsService', () => {
             generatePreSignedUrl: jest
               .fn()
               .mockResolvedValue('https://aws.s3/presigned-url'),
+            generatePreSignedUrlForExistingFile: jest
+              .fn()
+              .mockResolvedValue('http://mock-ingestion-url'),
           },
         },
         {
@@ -136,6 +163,7 @@ describe('DocumentsService', () => {
     const dto: DocumentCreateDto = {
       title: 'Test Document',
       url: 'https://aws.s3./testdocument.',
+      metaInfo: fileMetaInfo,
     };
 
     it('should throw exception if user not found', async () => {
@@ -169,13 +197,28 @@ describe('DocumentsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all documents uploaded by a user', async () => {
-      jest.spyOn(documentsRepository, 'find').mockResolvedValue(mockDocuments);
-      const result = await service.findAll('user-id');
-      expect(result).toEqual(mockDocuments);
-      expect(documentsRepository.find).toHaveBeenCalledWith({
-        where: { uploadedBy: 'user-id' },
-      });
+    it('should return paginated documents with metadata', async () => {
+      const paginationDto: PaginationDto = {
+        page: 1,
+        limit: 10,
+        orderBy: 'DESC',
+        sortBy: 'NEW',
+      };
+
+      const result = await service.findAll(mockUser.id, paginationDto);
+
+      expect(documentsRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'documents',
+      );
+
+      expect(result.items).toHaveLength(1);
+      expect(result.meta).toEqual(
+        new PaginationMetaDto({
+          page: 1,
+          limit: 10,
+          totalItems: 1,
+        }),
+      );
     });
   });
 
@@ -252,6 +295,7 @@ describe('DocumentsService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+
       const document: Documents = {
         id: uuidv4(),
         uploadedBy: user.id,
@@ -260,17 +304,26 @@ describe('DocumentsService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         title: 'Test',
+        metaInfo: fileMetaInfo,
       };
 
       jest.spyOn(documentsRepository, 'findOne').mockResolvedValue(document);
       jest.spyOn(usersService, 'findOne').mockResolvedValue(user);
 
+      jest
+        .spyOn(awsService, 'generatePreSignedUrlForExistingFile')
+        .mockResolvedValue('https://mock-s3-url.com/test.pdf');
+
       await service.triggerIngestion(document.id, user.id);
       expect(httpService.post).toHaveBeenCalledWith(
         'http://mock-ingestion-url',
-        { documentId: document.id, fileUrl: document.url },
+        {
+          documentId: document.id,
+          fileUrl: 'https://mock-s3-url.com/test.pdf',
+        },
       );
     });
+
     it('should throw BadRequestException when ingestion fails', async () => {
       const documentId = mockDocument.id;
       const userId = mockUser.id;

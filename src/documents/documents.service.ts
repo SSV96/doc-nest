@@ -13,6 +13,11 @@ import { DocumentCreateDto } from './dto/document.create';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import {
+  PaginatedResponseDto,
+  PaginationMetaDto,
+} from '../common/dto/paginated-resonse.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
 @Injectable()
 export class DocumentsService {
   ingestionServiceUrl: string;
@@ -44,6 +49,13 @@ export class DocumentsService {
       uploadedBy: user.id,
       title,
       url: fileUrl,
+      metaInfo: {
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        encoding: file.encoding,
+        fieldName: file.fieldname,
+      },
       status: DocumentStatusEnum.UPLOADED,
     });
 
@@ -60,17 +72,37 @@ export class DocumentsService {
       uploadedBy: user.id,
       title: dto.title,
       url: dto.url,
+      metaInfo: dto.metaInfo,
       status: DocumentStatusEnum.UPLOADED,
     });
   }
+
   async getPresignedUrl(fileName: string, fileType: string) {
     return this.awsService.generatePreSignedUrl(fileName, fileType);
   }
 
-  async findAll(uploadedBy: string) {
-    return await this.documentsRepository.find({
-      where: { uploadedBy },
+  async findAll(
+    uploadedBy: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResponseDto<Documents>> {
+    const { page, limit, orderBy } = paginationDto;
+    const skip = (page - 1) * limit;
+    const [items, totalItems] = await this.documentsRepository
+      .createQueryBuilder('documents')
+      .where('documents.uploadedBy= :uploadedBy', { uploadedBy })
+      .orderBy('documents.createdAt', orderBy)
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+    const meta = new PaginationMetaDto({
+      page,
+      limit,
+      totalItems,
     });
+    return {
+      items,
+      meta,
+    };
   }
 
   async findOne(id: string) {
@@ -106,11 +138,17 @@ export class DocumentsService {
       throw new BadRequestException('Document is not created By User');
     }
 
+    const preSignedUrl =
+      await this.awsService.generatePreSignedUrlForExistingFile(
+        document.url,
+        document.metaInfo.mimeType,
+      );
+
     try {
       await lastValueFrom(
         this.httpService.post(this.ingestionServiceUrl, {
           documentId,
-          fileUrl: document.url,
+          fileUrl: preSignedUrl,
         }),
       );
 
