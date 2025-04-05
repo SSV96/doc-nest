@@ -22,19 +22,34 @@ export class AwsService {
 
   async generatePreSignedUrl(
     fileName: string,
-    fileType: string,
+    mimeType: string,
   ): Promise<string> {
     const key = `documents/${uuid()}-${fileName}`;
 
     const command = new PutObjectCommand({
       Bucket: this.S3Config.bucketName,
       Key: key,
-      ContentType: fileType,
+      ContentType: mimeType,
     });
 
     const url = getSignedUrl(this.s3, command, { expiresIn: 3600 });
 
     return url;
+  }
+
+  async generatePreSignedUrlForExistingFile(
+    url: string,
+    mimeType: string,
+  ): Promise<string> {
+    const { bucketName } = this.S3Config;
+    const fileKey = this.extractFileKeyFromUrl(url, bucketName);
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: fileKey,
+      ContentType: mimeType,
+    });
+    const newUrl = getSignedUrl(this.s3, command, { expiresIn: 3600 });
+    return newUrl;
   }
 
   async uploadToS3(file: Express.Multer.File) {

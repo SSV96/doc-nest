@@ -9,6 +9,7 @@ import {
   UploadedFile,
   Body,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guard/jwt.guard';
@@ -17,8 +18,18 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { DocumentCreateDto } from './dto/document.create';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { PaginatedResponseDto } from 'src/common/dto/paginated-resonse.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @ApiTags('Documents')
 @ApiBearerAuth()
@@ -29,6 +40,7 @@ export class DocumentsController {
 
   @Post('upload')
   @ApiOperation({ summary: 'Upload a document' })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
@@ -80,14 +92,25 @@ export class DocumentsController {
   @Roles(RolesEnum.ADMIN)
   @Get('find_by_user/:user_id')
   @ApiOperation({ summary: 'Find all documents by user ID (Admin only)' })
-  findByUser(@Param('user_id') user_id: string) {
-    return this.documentsService.findAll(user_id);
+  @ApiResponse({
+    status: 200,
+    description: 'Returns an array of documents for the specified user ID',
+    type: PaginatedResponseDto<User>,
+  })
+  findByUser(
+    @Param('user_id') user_id: string,
+    @Query() paginatioDto: PaginationDto,
+  ) {
+    return this.documentsService.findAll(user_id, paginatioDto);
   }
 
   @Get('find_my_documents')
-  @ApiOperation({ summary: 'Find all documents for the authenticated user' })
-  findMyDocuments(@CurrentUser('userId') userId: string) {
-    return this.documentsService.findAll(userId);
+  @ApiOperation({ summary: 'Find all documents for the Authenticated user' })
+  findMyDocuments(
+    @CurrentUser('userId') userId: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.documentsService.findAll(userId, paginationDto);
   }
 
   @Get('find/:id')
