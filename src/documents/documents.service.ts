@@ -68,6 +68,7 @@ export class DocumentsService {
   }
 
   async findAll(uploadedBy: string) {
+    console.log('uploadedBy', uploadedBy);
     return await this.documentsRepository.find({
       where: { uploadedBy },
     });
