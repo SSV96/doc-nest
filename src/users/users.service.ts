@@ -4,6 +4,11 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { RolesEnum } from '../common/enum/roles.enum';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import {
+  PaginatedResponseDto,
+  PaginationMetaDto,
+} from 'src/common/dto/paginated-resonse.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -18,8 +23,33 @@ export class UsersService {
     const newUser = await this.usersRepository.save(registerDto);
     return newUser;
   }
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(
+    pagination?: PaginationDto,
+  ): Promise<PaginatedResponseDto<User>> {
+    const { page, limit, orderBy } = pagination;
+    const skip = (page - 1) * limit;
+
+    const [items, totalItems] = await this.usersRepository
+      .createQueryBuilder('users')
+      .select([
+        'users.id',
+        'users.email',
+        'users.role',
+        'users.createdAt',
+        'users.updatedAt',
+      ])
+      .orderBy('users.createdAt', orderBy)
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    const meta = new PaginationMetaDto({
+      page,
+      limit,
+      totalItems,
+    });
+
+    return { meta, items };
   }
 
   findOne(id: string): Promise<User> {
