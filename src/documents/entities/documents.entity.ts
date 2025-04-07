@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
 } from 'typeorm';
 import { DocumentStatusEnum } from '../enum/document.status';
 import { IFileMetaInfo } from '../interface';
@@ -16,7 +15,6 @@ export class Documents {
   @Column()
   title: string;
 
-  @Index()
   @Column()
   uploadedBy: string;
 

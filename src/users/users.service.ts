@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Users } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { PaginationDto } from '../common/dto/pagination.dto';
@@ -12,9 +12,9 @@ import {
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Users) private usersRepository: Repository<Users>,
+    @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
-  async upsertUser(registerDto: RegisterDto): Promise<Users> {
+  async upsertUser(registerDto: RegisterDto): Promise<User> {
     const { email } = registerDto;
     const user = await this.usersRepository.findOne({ where: { email } });
     if (user) {
@@ -25,7 +25,7 @@ export class UsersService {
   }
   async findAll(
     pagination?: PaginationDto,
-  ): Promise<PaginatedResponseDto<Users>> {
+  ): Promise<PaginatedResponseDto<User>> {
     const { page, limit, orderBy } = pagination;
     const skip = (page - 1) * limit;
 
@@ -52,15 +52,15 @@ export class UsersService {
     return { meta, items };
   }
 
-  findOne(id: string): Promise<Users> {
+  findOne(id: string): Promise<User> {
     return this.usersRepository.findOneBy({ id });
   }
 
-  findOneByEmail(email: string): Promise<Users> {
+  findOneByEmail(email: string): Promise<User> {
     return this.usersRepository.findOneBy({ email });
   }
 
-  async updateUserRole(id: string, role: RolesEnum): Promise<Users> {
+  async updateUserRole(id: string, role: RolesEnum): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
 
     if (!user) {
