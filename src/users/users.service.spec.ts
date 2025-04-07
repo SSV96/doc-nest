@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Users } from './entities/user.entity';
+import { User } from './entities/user.entity';
 import { NotFoundException } from '@nestjs/common';
 import { RolesEnum } from '../common/enum/roles.enum';
 import { RegisterDto } from '../auth/dto/register.dto';
@@ -11,7 +11,7 @@ import { PaginationMetaDto } from '../common/dto/paginated-resonse.dto';
 describe('UsersService', () => {
   let service: UsersService;
 
-  const mockUser: Users = {
+  const mockUser: User = {
     id: uuidV4(),
     email: 'user@gmail.com',
     password: '',
@@ -20,7 +20,7 @@ describe('UsersService', () => {
     updatedAt: new Date(),
   };
 
-  const mockUsers: Users[] = [
+  const mockUsers: User[] = [
     {
       id: uuidV4(),
       email: 'user1@gmail.com',
@@ -52,7 +52,7 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: getRepositoryToken(Users),
+          provide: getRepositoryToken(User),
           useValue: mockUsersRepository,
         },
       ],
@@ -85,7 +85,7 @@ describe('UsersService', () => {
         role: RolesEnum.ADMIN,
       };
 
-      const newUser: Users = {
+      const newUser: User = {
         id: uuidV4(),
         email: 'user2@gmail.com',
         password: 'password',

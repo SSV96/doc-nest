@@ -29,7 +29,7 @@ import {
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { PaginatedResponseDto } from '../common/dto/paginated-resonse.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
-import { Users } from '../users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('Documents')
 @ApiBearerAuth()
@@ -95,7 +95,7 @@ export class DocumentsController {
   @ApiResponse({
     status: 200,
     description: 'Returns an array of documents for the specified user ID',
-    type: PaginatedResponseDto<Users>,
+    type: PaginatedResponseDto<User>,
   })
   findByUser(
     @Param('user_id') user_id: string,
